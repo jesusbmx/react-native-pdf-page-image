@@ -1,13 +1,14 @@
 # react-native-pdf-page-image
 Library to obtain the pages of a pdf in image format
-## Installation
 
+## Installation
 ```sh
 npm install react-native-pdf-page-image
 ```
+#### iOS
+`$ cd ios & pod install`
 
 ## Usage
-
 ```js
 import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
 
@@ -20,14 +21,18 @@ const scale = 2.0;
 // The thumbnail image is stored in caches directory, file uri is returned.
 // Image dimensions are also available to help you display it correctly.
 const { uri, width, height } = await PdfPageImage.generate(filePath, page);
-
-// Generate thumbnails for all pages, returning an array of the object above.
-const results = await PdfPageImage.generateAllPages(filePath);
-
-// Default scale is 2.0, you can optionally specify a scale
-const { uri, width, height } = await PdfPageImage.generate(filePath, page, scale);
-const results = await PdfPageImage.generateAllPages(filePath, scale);
 ```
+
+## Api
+```js
+generateAllPages(filePath: string, scale?: number): Promise<PageImage[]>
+```
+Generate thumbnails for all pages, returning an array of the object above.
+
+```js
+generate(filePath: string, page: number, scale?: number): Promise<PageImage>
+```
+Default scale is 1.0, you can optionally specify a scale
 
 ## Example
 ```js

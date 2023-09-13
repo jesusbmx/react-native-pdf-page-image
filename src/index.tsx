@@ -17,7 +17,7 @@ const RNPdfPageImage = NativeModules.PdfPageImage
       }
     );
 
-const DEFAULT_SCALE = 2.0;
+const DEFAULT_SCALE = 1.0;
 
 export type PageImage = {
   uri: string;
@@ -29,8 +29,7 @@ const sanitizeScale = (scale?: number): number => {
   if (scale === undefined) {
     scale = DEFAULT_SCALE;
   }
-  //return Math.min(Math.max(scale, 0), 100);
-  return scale;
+  return Math.min(Math.max(scale, 1.0), 10.0);
 };
 
 export default class PdfPageImage {
