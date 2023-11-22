@@ -61,6 +61,7 @@ android {
 repositories {
   mavenCentral()
   google()
+  jcenter()  // Add this line to include JCenter repository
 
   def found = false
   def defaultDir = null

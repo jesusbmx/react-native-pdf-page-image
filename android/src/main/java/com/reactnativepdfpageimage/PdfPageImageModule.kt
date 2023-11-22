@@ -13,6 +13,7 @@ import java.io.IOException
 import java.util.Random
 
 class PdfPageImageModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+
   override fun getName(): String {
     return "PdfPageImage"
   }

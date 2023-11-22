@@ -1,7 +1,7 @@
 {
   "name": "react-native-pdf-page-image",
-  "version": "0.1.0",
-  "description": "test",
+  "version": "0.1.2",
+  "description": "Library to obtain the pages of a pdf in image format",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
