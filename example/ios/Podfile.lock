@@ -377,7 +377,7 @@ PODS:
     - glog
   - react-native-document-picker (8.2.1):
     - React-Core
-  - react-native-pdf-page-image (0.1.0):
+  - react-native-pdf-page-image (0.1.3):
     - React-Core
   - React-NativeModulesApple (0.72.4):
     - hermes-engine
@@ -698,7 +698,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-document-picker: 69ca2094d8780cfc1e7e613894d15290fdc54bba
-  react-native-pdf-page-image: c53f732962b12751db214ca0a394715aeb4e8fcb
+  react-native-pdf-page-image: 77880bf12e4bd13a52093d0e668dcb4ddbe5c676
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
   React-RCTActionSheet: 02904b932b50e680f4e26e7a686b33ebf7ef3c00

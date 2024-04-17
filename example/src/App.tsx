@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Button, Image, StyleSheet, Text, View, ScrollView } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
+//import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
+import PdfPageImage, { PageImage } from '../../';
 
 type ErrorType = { code: string; message: string };
 
@@ -54,7 +55,9 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button onPress={onPress} title="Pick PDF File" />
+      <View style={styles.button}>
+        <Button onPress={onPress} title="Pick PDF File" />
+      </View>
       <ScrollView>
         <View style={styles.thumbnailPreview}>
           {ThumbnailResult}
@@ -70,19 +73,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    marginBottom: 40,
+  },
+  button: {
+    margin: 20,
   },
   thumbnailPreview: {
-    padding: 20,
+    padding: 0,
     alignItems: 'center',
   },
   thumbnailImage: {
-    width: 500,
-    height: 500,
-    marginBottom: 20,
+    width: "100%",
+    borderColor: '#000',
+    borderWidth: 1,
+    backgroundColor: "#eee"
   },
   thumbnailInfo: {
     color: 'darkblue',
+    padding: 10
   },
   thumbnailError: {
     color: 'crimson',

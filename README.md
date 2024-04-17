@@ -1,5 +1,6 @@
 # react-native-pdf-page-image
-Library to obtain the pages of a pdf in image format
+
+This module enables React Native applications to generate images from PDF document pages. It uses PDFKit on iOS and PdfRenderer on Android to render PDF pages as images.
 
 ## Installation
 ```sh
@@ -9,123 +10,61 @@ npm install react-native-pdf-page-image
 `$ cd ios & pod install`
 
 ## Usage
+
+Import the module in your code and use the functions to generate images from individual pages or all pages of a PDF document.
+
 ```js
-import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
+import PdfPageImage from 'react-native-pdf-page-image';
 
-// For iOS, the filePath can be a file URL.
-// For Android, the filePath can be either a content URI, a file URI or an absolute path.
-const filePath = 'file:///mnt/sdcard/myDocument.pdf';
-const page = 0;
-const scale = 2.0;
+// Generate an image from a specific page
+PdfPageImage.generate(filePath, pageNumber, scale)
+  .then(image => {
+    console.log(image.uri);
+    console.log(`Width: ${image.width}, Height: ${image.height}`);
+  })
+  .catch(error => {
+    console.error(error);
+  });
 
-// The thumbnail image is stored in caches directory, file uri is returned.
-// Image dimensions are also available to help you display it correctly.
-const { uri, width, height } = await PdfPageImage.generate(filePath, page);
+// Generate images from all pages
+PdfPageImage.generateAllPages(filePath, scale)
+  .then(images => {
+    images.forEach(image => {
+      console.log(image.uri);
+      console.log(`Width: ${image.width}, Height: ${image.height}`);
+    });
+  })
+  .catch(error => {
+    console.error(error);
+  });
 ```
 
-## Api
-```js
-generateAllPages(filePath: string, scale?: number): Promise<PageImage[]>
-```
-Generate thumbnails for all pages, returning an array of the object above.
 
-```js
-generate(filePath: string, page: number, scale?: number): Promise<PageImage>
-```
-Default scale is 1.0, you can optionally specify a scale
+# API
 
-## Example
-```js
-import * as React from 'react';
-import { Button, Image, StyleSheet, Text, View, ScrollView } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
-import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
+    generate(filePath: string, page: number, scale?: number): Promise<PageImage>
 
-type ErrorType = { code: string; message: string };
+Generates an image from a specific PDF page.
 
-export default function App() {
+- filePath: Path to the PDF file.
+- page: Page number to render.
+- scale: Scale of the generated image, optional.
 
-  const [thumbnail, setThumbnail] = 
-    React.useState<PageImage | undefined>();
+    generateAllPages(filePath: string, scale?: number): Promise<PageImage[]>
 
-  const [error, setError] = 
-    React.useState<ErrorType | undefined>();
+Generates images from all pages of the PDF document.
 
-  const onPress = async () => {
-    try {
-      const { uri } = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.pdf],
-      });
-      const result = await PdfPageImage.generate(uri, 0, 2.0);
-      setThumbnail(result);
-      setError(undefined);
+- filePath: Path to the PDF file.
+- scale: Scale of the generated images, optional.
 
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        // User cancelled the picker, exit any dialogs or menus and move on
-      } else {
-        setThumbnail(undefined);
-        setError(err as ErrorType);
-      }
-    }
-  };
+# Types
 
-  const ThumbnailResult = thumbnail ? (
-    <>
-      <Image
-        source={thumbnail}
-        resizeMode="contain"
-        style={styles.thumbnailImage}
-      />
-      <Text style={styles.thumbnailInfo}>uri: {thumbnail.uri}</Text>
-      <Text style={styles.thumbnailInfo}>width: {thumbnail.width}</Text>
-      <Text style={styles.thumbnailInfo}>height: {thumbnail.height}</Text>
-    </>
-  ) : null;
-
-  const ThumbnailError = error ? (
-    <>
-      <Text style={styles.thumbnailError}>Error code: {error.code}</Text>
-      <Text style={styles.thumbnailError}>Error message: {error.message}</Text>
-    </>
-  ) : null;
-
-  return (
-    <View style={styles.container}>
-      <Button onPress={onPress} title="Pick PDF File" />
-      <ScrollView>
-        <View style={styles.thumbnailPreview}>
-          {ThumbnailResult}
-          {ThumbnailError}
-        </View>
-      </ScrollView>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  thumbnailPreview: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  thumbnailImage: {
-    width: 500,
-    height: 500,
-    marginBottom: 20,
-  },
-  thumbnailInfo: {
-    color: 'darkblue',
-  },
-  thumbnailError: {
-    color: 'crimson',
-  },
-});
+```typescript
+type PageImage = {
+  uri: string;
+  width: number;
+  height: number;
+};
 ```
 
 ## Contributing

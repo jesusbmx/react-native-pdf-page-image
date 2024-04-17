@@ -12,63 +12,67 @@ class PdfPageImage: NSObject {
         scale: CGFloat = 2.0
     ) throws -> [String: Any] {
         
-        // Get the bounds of the PDF page and apply scaling
+        // Obtener los límites de la página PDF
         let pageRect = pdfPage.bounds(for: .mediaBox)
         
-        let scaledRect = CGRect(
-              x: pageRect.origin.x * scale,
-              y: pageRect.origin.y * scale,
-              width: pageRect.width * scale,
-              height: pageRect.height * scale)
+        /*
+        // Definir el tamaño escalado en base al factor de escala deseado
+        let scaledSize = CGSize(
+            width: pageRect.width * scale,
+            height: pageRect.height * scale)
         
-        guard let context = CGContext(data: nil,
-           width: Int(scaledRect.width),
-           height: Int(scaledRect.height),
-           bitsPerComponent: 8,
-           bytesPerRow: 0,
-           space: CGColorSpaceCreateDeviceRGB(),
-           bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-        ) else {
-            throw NSError(
-                domain: "CGContext is null, \(scale) value for scale is invalid", code: 500);
-        }
+        // Utilizar UIGraphicsImageRenderer para manejar el escalado y la creación de la imagen
+        let renderer = UIGraphicsImageRenderer(size: scaledSize)
         
-        context.interpolationQuality = .high
+        // Renderizar la imagen utilizando el bloque de UIGraphicsImageRenderer
+        let scaledImage = renderer.image { context in
+            context.cgContext.interpolationQuality = .high
+            
+            // Establecer un fondo blanco
+            context.cgContext.setFillColor(UIColor.white.cgColor)
+            context.cgContext.fill(CGRect(origin: .zero, size: scaledSize))
+            
+            // Dibujar la página en el contexto
+            context.cgContext.saveGState()
+            context.cgContext.translateBy(x: 0, y: scaledSize.height)
+            context.cgContext.scaleBy(x: 1.0, y: -1.0) // Invertir la imagen en el eje y
+            
+            // Especificar claramente cómo debe manejarse el renderizado del PDF
+            pdfPage.draw(with: .mediaBox, to: context.cgContext)
+            context.cgContext.restoreGState()
+        }*/
         
-        // Some bitmaps have transparent background. Add a white background.
-        context.setFillColor(UIColor.white.cgColor)
-        context.fill(scaledRect)
         
-        // Apply scaling to the context
-        context.scaleBy(x: scale, y: scale)
-
-        // Render the PDF page into the context
-        pdfPage.draw(with: .mediaBox, to: context)
+        // Definir el tamaño escalado en base al factor de escala deseado
+            // Multiplicamos el factor de escala por 2 para compensar la menor resolución de la miniatura
+        let scaledSize = CGSize(
+            width: pageRect.width * scale,
+            height: pageRect.height * scale)
         
-        // Extract the image
-        guard let cgImage = context.makeImage() else {
-            throw NSError(
-                domain: "ImageContext is null", code: 500);
-        }
+        let scaledImage = pdfPage.thumbnail(of: scaledSize, for: .mediaBox)
         
-        // Create a UIImage from the CGImage
-        let uiImage = UIImage(cgImage: cgImage)
         
-        guard let data = uiImage.pngData() else {
-            throw NSError(
-                domain: "Could not convert image to PNG format", code: 500);
-        }
         
+        // Determine the output file path
         let outputFile = getCachesDirectory()
             .appendingPathComponent(
                 getOutputFilename(filePath: filePath, page: page))
         
+        // Convertir la UIImage escalada a datos PNG
+        guard let data = scaledImage.pngData() else {
+            throw NSError(
+                domain: "Could not convert image to PNG format", code: 500)
+        }
+        
+        // Write the PNG data to the file system
         try data.write(to: outputFile)
         
+        // Return the file URI and dimensions of the output image
         return [
             "uri": outputFile.absoluteString,
-            "width": Int(scaledRect.width),
-            "height": Int(scaledRect.height),
+            //"base64": data.base64EncodedString(),
+            "width": Int(scaledSize.width),
+            "height": Int(scaledSize.height)
         ]
     }
     
@@ -101,7 +105,7 @@ class PdfPageImage: NSObject {
             reject("INTERNAL_ERROR", error.localizedDescription, nil)
         }
     }
-    
+
     @available(iOS 11.0, *)
     @objc(generateAllPages:withScale:withResolver:withRejecter:)
     func generateAllPages(

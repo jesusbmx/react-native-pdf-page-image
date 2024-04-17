@@ -29,7 +29,7 @@ const sanitizeScale = (scale?: number): number => {
   if (scale === undefined) {
     scale = DEFAULT_SCALE;
   }
-  return Math.min(Math.max(scale, 1.0), 10.0);
+  return Math.min(Math.max(scale, 0.1), 10.0);
 };
 
 export default class PdfPageImage {
