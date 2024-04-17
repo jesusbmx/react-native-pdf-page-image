@@ -42,20 +42,18 @@ PdfPageImage.generateAllPages(filePath, scale)
 
 # API
 
-    generate(filePath: string, page: number, scale?: number): Promise<PageImage>
+generate(filePath: string, page: number, scale?: number): Promise<PageImage>
 
-Generates an image from a specific PDF page.
+  Generates an image from a specific PDF page.
+  - filePath: Path to the PDF file.
+  - page: Page number to render.
+  - scale: Scale of the generated image, optional
 
-- filePath: Path to the PDF file.
-- page: Page number to render.
-- scale: Scale of the generated image, optional.
+generateAllPages(filePath: string, scale?: number): Promise<PageImage[]>
 
-    generateAllPages(filePath: string, scale?: number): Promise<PageImage[]>
-
-Generates images from all pages of the PDF document.
-
-- filePath: Path to the PDF file.
-- scale: Scale of the generated images, optional.
+  Generates images from all pages of the PDF document.
+  - filePath: Path to the PDF file.
+  - scale: Scale of the generated images, optional.
 
 # Types
 
