@@ -166,6 +166,7 @@ class PdfPageImage: NSObject {
         resolve(result)
     }
     
+    @available(iOS 11.0, *)
     func getPDFDocument(filePath: String) -> PDFDocument? {
         guard let fileUrl = URL(string: filePath) else {
             return nil
