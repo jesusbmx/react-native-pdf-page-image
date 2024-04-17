@@ -33,27 +33,18 @@ const sanitizeScale = (scale?: number): number => {
 };
 
 export default class PdfPageImage {
-
   static async generate(
     filePath: string,
     page: number,
     scale?: number
   ): Promise<PageImage> {
-    return RNPdfPageImage.generate(
-      filePath,
-      page,
-      sanitizeScale(scale)
-    );
+    return RNPdfPageImage.generate(filePath, page, sanitizeScale(scale));
   }
 
   static async generateAllPages(
     filePath: string,
     scale?: number
   ): Promise<PageImage[]> {
-    return RNPdfPageImage.generateAllPages(
-      filePath,
-      sanitizeScale(scale)
-    );
+    return RNPdfPageImage.generateAllPages(filePath, sanitizeScale(scale));
   }
 }
-

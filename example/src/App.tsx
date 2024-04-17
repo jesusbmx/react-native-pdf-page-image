@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { Button, Image, StyleSheet, Text, View, ScrollView } from 'react-native';
+import {
+  Button,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 //import PdfPageImage, { PageImage } from 'react-native-pdf-page-image';
 import PdfPageImage, { PageImage } from '../../';
@@ -7,12 +14,9 @@ import PdfPageImage, { PageImage } from '../../';
 type ErrorType = { code: string; message: string };
 
 export default function App() {
+  const [thumbnail, setThumbnail] = React.useState<PageImage | undefined>();
 
-  const [thumbnail, setThumbnail] = 
-    React.useState<PageImage | undefined>();
-
-  const [error, setError] = 
-    React.useState<ErrorType | undefined>();
+  const [error, setError] = React.useState<ErrorType | undefined>();
 
   const onPress = async () => {
     try {
@@ -22,7 +26,6 @@ export default function App() {
       const result = await PdfPageImage.generate(uri, 0, 2.0);
       setThumbnail(result);
       setError(undefined);
-
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker, exit any dialogs or menus and move on
@@ -83,14 +86,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   thumbnailImage: {
-    width: "100%",
+    width: '100%',
     borderColor: '#000',
     borderWidth: 1,
-    backgroundColor: "#eee"
+    backgroundColor: '#eee',
   },
   thumbnailInfo: {
     color: 'darkblue',
-    padding: 10
+    padding: 10,
   },
   thumbnailError: {
     color: 'crimson',
