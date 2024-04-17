@@ -23,7 +23,7 @@ export default function App() {
       const { uri } = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.pdf],
       });
-      const result = await PdfPageImage.generate(uri, 0, 2.0);
+      const result = await PdfPageImage.generate(uri, 0, 1.0);
       setThumbnail(result);
       setError(undefined);
     } catch (err) {

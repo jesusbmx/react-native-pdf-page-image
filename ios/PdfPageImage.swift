@@ -4,6 +4,21 @@ import UIKit
 @objc(PdfPageImage)
 class PdfPageImage: NSObject {
     
+    // Obtener los límites de la página PDF
+    @available(iOS 11.0, *)
+    func bound(pdfPage: PDFPage) -> CGRect {
+        let pageRect = pdfPage.bounds(for: .mediaBox)
+        
+        // Verificar si las dimensiones deben ser intercambiadas basándonos en la rotación
+        let rotationAngle = pdfPage.rotation % 360  // Normalizar el ángulo
+        if rotationAngle == 90 || rotationAngle == 270 {
+            // Intercambiar las dimensiones si la página está rotada 90 o 270 grados
+            return CGRect(x: pageRect.origin.x, y: pageRect.origin.y, width: pageRect.height, height: pageRect.width)
+        }
+        
+        return pageRect
+    }
+    
     @available(iOS 11.0, *)
     func generatePage(
         pdfPage: PDFPage,
@@ -13,9 +28,8 @@ class PdfPageImage: NSObject {
     ) throws -> [String: Any] {
         
         // Obtener los límites de la página PDF
-        let pageRect = pdfPage.bounds(for: .mediaBox)
+        var pageRect = bound(pdfPage: pdfPage);
         
-        /*
         // Definir el tamaño escalado en base al factor de escala deseado
         let scaledSize = CGSize(
             width: pageRect.width * scale,
@@ -37,12 +51,25 @@ class PdfPageImage: NSObject {
             context.cgContext.translateBy(x: 0, y: scaledSize.height)
             context.cgContext.scaleBy(x: 1.0, y: -1.0) // Invertir la imagen en el eje y
             
+            // Ajustar la rotación en caso de que la página esté en orientación horizontal
+            /*let rotationAngle = pdfPage.rotation
+            if rotationAngle == 90 {
+                context.cgContext.translateBy(x: scaledSize.width, y: 0)
+                context.cgContext.rotate(by: .pi / 2)  // Rotar 90 grados
+            } else if rotationAngle == 270 {
+                context.cgContext.translateBy(x: 0, y: scaledSize.height)
+                context.cgContext.rotate(by: -(.pi / 2))  // Rotar -90 grados
+            } else if rotationAngle == 180 {
+                context.cgContext.translateBy(x: scaledSize.width, y: scaledSize.height)
+                context.cgContext.rotate(by: .pi)  // Rotar 180 grados
+            }*/
+            
             // Especificar claramente cómo debe manejarse el renderizado del PDF
             pdfPage.draw(with: .mediaBox, to: context.cgContext)
             context.cgContext.restoreGState()
-        }*/
+        }
         
-        
+        /*
         // Definir el tamaño escalado en base al factor de escala deseado
             // Multiplicamos el factor de escala por 2 para compensar la menor resolución de la miniatura
         let scaledSize = CGSize(
@@ -50,7 +77,7 @@ class PdfPageImage: NSObject {
             height: pageRect.height * scale)
         
         let scaledImage = pdfPage.thumbnail(of: scaledSize, for: .mediaBox)
-        
+        */
         
         
         // Determine the output file path
