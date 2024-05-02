@@ -19,12 +19,6 @@ const RNPdfPageImage = NativeModules.PdfPageImage
 
 const DEFAULT_SCALE = 1.0;
 
-export type PageImage = {
-  uri: string;
-  width: number;
-  height: number;
-};
-
 const sanitizeScale = (scale?: number): number => {
   if (scale === undefined) {
     scale = DEFAULT_SCALE;
@@ -32,19 +26,39 @@ const sanitizeScale = (scale?: number): number => {
   return Math.min(Math.max(scale, 0.1), 10.0);
 };
 
+export type PageImage = {
+  uri: string;
+  width: number;
+  height: number;
+};
+
+export type PdfInfo = {
+  uri: string;
+  pageCount: number;
+}
+
 export default class PdfPageImage {
+
+  static async open(uri: string): Promise<PdfInfo> {
+    return RNPdfPageImage.openPdf(uri);
+  }
+
   static async generate(
-    filePath: string,
+    uri: string,
     page: number,
     scale?: number
   ): Promise<PageImage> {
-    return RNPdfPageImage.generate(filePath, page, sanitizeScale(scale));
+    return RNPdfPageImage.generate(uri, page, sanitizeScale(scale));
   }
 
   static async generateAllPages(
-    filePath: string,
+    uri: string,
     scale?: number
   ): Promise<PageImage[]> {
-    return RNPdfPageImage.generateAllPages(filePath, sanitizeScale(scale));
+    return RNPdfPageImage.generateAllPages(uri, sanitizeScale(scale));
+  }
+
+  static async close(uri: string): Promise<void> {
+    return RNPdfPageImage.closePdf(uri);
   }
 }
