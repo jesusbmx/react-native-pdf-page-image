@@ -35,10 +35,9 @@ export type PageImage = {
 export type PdfInfo = {
   uri: string;
   pageCount: number;
-}
+};
 
 export default class PdfPageImage {
-
   static async open(uri: string): Promise<PdfInfo> {
     return RNPdfPageImage.openPdf(uri);
   }
