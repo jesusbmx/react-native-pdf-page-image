@@ -1,4 +1,3 @@
-
 import UIKit
 
 @available(iOS 11.0, *)
@@ -42,7 +41,7 @@ class PdfPageImage: NSObject {
         do {
             let pdf = try getPdfFlyweight(uri: uri)
             let pageResult = try pdf.getPage(
-                page: page,
+                index: page,
                 scale: CGFloat(scale)
             )
             resolve(pageResult)
@@ -68,7 +67,7 @@ class PdfPageImage: NSObject {
             
             for page in 0 ..< pdf.pageCount() {
                 let pageResult = try pdf.getPage(
-                    page: page,
+                    index: page,
                     scale: CGFloat(scale)
                 )
                 result.append(pageResult)
