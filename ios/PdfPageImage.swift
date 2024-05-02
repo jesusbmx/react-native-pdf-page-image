@@ -7,7 +7,9 @@ class PdfPageImage: NSObject {
     
     private var documentCache: [String: PdfFlyweight] = [:]
     
-    @available(iOS 11.0, *)
+    /**
+     Opens a PDF and returns basic details to JavaScript.
+     */
     @objc(openPdf:withResolver:withRejecter:)
     func openPdf(
         uri: String,
@@ -26,7 +28,9 @@ class PdfPageImage: NSObject {
         }
     }
     
-    @available(iOS 11.0, *)
+    /**
+     Generates a page image from the PDF based on the provided scale.
+     */
     @objc(generate:withPage:withScale:withResolver:withRejecter:)
     func generate(
         uri: String,
@@ -48,7 +52,9 @@ class PdfPageImage: NSObject {
         }
     }
 
-    @available(iOS 11.0, *)
+    /**
+     Generates images for all pages of a PDF at the specified scale.
+     */
     @objc(generateAllPages:withScale:withResolver:withRejecter:)
     func generateAllPages(
         uri: String,
@@ -56,7 +62,6 @@ class PdfPageImage: NSObject {
         resolve: RCTPromiseResolveBlock,
         reject: RCTPromiseRejectBlock
     ) {
-            
         do {
             var result: [[String: Any]] = []
             let pdf = try getPdfFlyweight(uri: uri)
@@ -76,7 +81,9 @@ class PdfPageImage: NSObject {
         }
     }
     
-    @available(iOS 11.0, *)
+    /**
+     Closes the PDF and frees any resources associated with it.
+     */
     @objc(closePdf:withResolver:withRejecter:)
     func closePdf(
         uri: String,
@@ -94,7 +101,9 @@ class PdfPageImage: NSObject {
         }
     }
     
-    @available(iOS 11.0, *)
+    /**
+     Retrieves or creates a PdfFlyweight object for the given URI.
+     */
     func getPdfFlyweight(uri: String) throws -> PdfFlyweight {
         // Verificar si el documento ya está en la caché
         if let cachedDocument = documentCache[uri] {

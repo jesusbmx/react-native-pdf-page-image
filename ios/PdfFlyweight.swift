@@ -20,6 +20,9 @@ class PdfFlyweight {
         self.document = try PdfFlyweight.createDocument(uri: uri)
     }
     
+    /**
+     Función que obtiene un PDFDocument del URI.
+     */
     private static func createDocument(uri: String) throws -> PDFDocument {
         let data: Data
 
@@ -56,9 +59,17 @@ class PdfFlyweight {
         
         return document
     }
+
+    /**
+     Obtiene el numero de paginas
+     */
+    public func pageCount() -> Int {
+        return document.pageCount
+    }
     
-    // Obtener los límites de la página PDF
-    @available(iOS 11.0, *)
+    /**
+     Obtener los límites de la página PDF
+     */
     private func bound(pdfPage: PDFPage) -> CGRect {
         let pageRect = pdfPage.bounds(for: .mediaBox)
         // Verificar si las dimensiones deben ser intercambiadas basándonos en la rotación
@@ -70,8 +81,9 @@ class PdfFlyweight {
         return pageRect
     }
     
-
-    @available(iOS 11.0, *)
+    /**
+     Genera una página renderizada del PDF a una imagen, guardándola localmente.
+     */
     private func generatePage(
         page: Int,
         scale: CGFloat = 2.0
@@ -140,24 +152,29 @@ class PdfFlyweight {
         ]
     }
     
-    @available(iOS 11.0, *)
+    /**
+     * Obtiene una página específica, usando caché para mejorar el rendimiento.
+     */
     public func getPage(
-        page: Int,
+        index: Int,
         scale: CGFloat = 2.0
     ) throws -> [String: Any] {
-        let key = "\(page):\(scale)"
+        let key = "\(index):\(scale)"
         
         // Verificar si la pagina ya está en la caché
         if let cachedPage = pageCache[key] {
             return cachedPage
         }
 
-        let page = try generatePage(page: page, scale: scale)
+        let page = try generatePage(page: index, scale: scale)
         pageCache[key] = page // Guardar la pagina en la caché
         
         return page;
     }
     
+    /**
+     Genera un nombre de archivo temporal único para almacenar un bitmap.
+     */
     private func generateOutputFilename() -> URL {
         // Generar un UUID único
         let uuidString = UUID().uuidString
@@ -173,11 +190,10 @@ class PdfFlyweight {
         // Combinar el directorio de documentos con el nombre del archivo para obtener la URL completa
         return documentsDirectory.appendingPathComponent(filename)
     }
-    
-    public func pageCount() -> Int {
-        return document.pageCount
-    }
-    
+       
+    /**
+     Limpia recursos al cerrar, eliminando archivos temporales y cerrando conexiones.
+     */
     public func close() {
         // Recorre todas las páginas almacenadas en la caché
         for (_, pageData) in pageCache {
