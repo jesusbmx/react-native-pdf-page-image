@@ -1,7 +1,6 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
-folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
 Pod::Spec.new do |s|
   s.name         = "react-native-pdf-page-image"
@@ -11,25 +10,21 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "10.0" }
+  # RN >= 0.73 / Expo SDK 54 require iOS 12.4+; PDFKit also needs iOS 11+.
+  s.platforms    = { :ios => "12.4" }
   s.source       = { :git => "https://github.com/jesusbmx/react-native-pdf-page-image.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
+  # Explicit Swift version to keep Xcode 15+ happy when compiling pod targets.
+  s.swift_version = "5.0"
+  # So the app that links this static lib finds Swift compatibility libs (swiftCompatibility56, etc.) with Xcode 16+.
+  s.user_target_xcconfig = { "LIBRARY_SEARCH_PATHS" => '$(inherited) "$(SDKROOT)/usr/lib/swift"' }
 
-  s.dependency "React-Core"
-
-  # Don't install the dependencies when we run `pod install` in the old architecture.
-  if ENV['RCT_NEW_ARCH_ENABLED'] == '1' then
-    s.compiler_flags = folly_compiler_flags + " -DRCT_NEW_ARCH_ENABLED=1"
-    s.pod_target_xcconfig    = {
-        "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\"",
-        "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
-    }
-
-    s.dependency "React-Codegen"
-    s.dependency "RCT-Folly"
-    s.dependency "RCTRequired"
-    s.dependency "RCTTypeSafety"
-    s.dependency "ReactCommon/turbomodule/core"
+  # Prefer React Native's helper when available (RN >= 0.73 / Expo SDK 54),
+  # so dependencies like vendored Folly are provided centrally and not duplicated.
+  if defined?(install_modules_dependencies)
+    install_modules_dependencies(s)
+  else
+    s.dependency "React-Core"
   end
 end

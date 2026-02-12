@@ -6,18 +6,25 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 
 platform :ios, min_ios_version_supported
+
+# Use official Boost mirror (jfrog.io often returns HTML). Ensure correct checksum for that tarball.
+boost_podspec = File.join(__dir__, '../node_modules/react-native/third-party-podspecs/boost.podspec')
+if File.exist?(boost_podspec)
+  boost_content = File.read(boost_podspec)
+  jfrog_url = 'https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2'
+  archives_url = 'https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2'
+  wrong_sha = '1c162b579a423fa6876c6c5bc16d39ab4bc05e28898977a0a6af345f523f6357'
+  correct_sha = 'f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41'
+  boost_content = boost_content.sub(jfrog_url, archives_url) if boost_content.include?(jfrog_url)
+  boost_content = boost_content.sub(wrong_sha, correct_sha) if boost_content.include?(wrong_sha)
+  File.write(boost_podspec, boost_content)
+end
+
 prepare_react_native_project!
 
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+# Flipper disabled by default; FlipperKit often fails to compile with Xcode 15+.
+# Set NO_FLIPPER=0 and run pod install if you need Flipper.
+flipper_config = ENV['NO_FLIPPER'] == "0" ? FlipperConfiguration.enabled : FlipperConfiguration.disabled
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -58,5 +65,38 @@ target 'PdfPageImageExample' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    # Xcode 16+ requires minimum deployment target 12.0; some pods still have 11.0.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 12.0
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+        end
+      end
+    end
+    # Swift static lib (react-native-pdf-page-image) needs Swift compatibility libs at link time.
+    # Xcode 16+ keeps them in the default toolchain, not the SDK; add path and explicit -l flags.
+    require 'xcodeproj'
+    app_project_path = File.join(__dir__, 'PdfPageImageExample.xcodeproj')
+    if File.directory?(app_project_path)
+      app_project = Xcodeproj::Project.open(app_project_path)
+      app_project.native_targets.each do |target|
+        next unless target.name == 'PdfPageImageExample'
+        target.build_configurations.each do |build_config|
+          paths = build_config.build_settings['LIBRARY_SEARCH_PATHS'] || ['$(inherited)']
+          swift_toolchain = '$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)'
+          paths << swift_toolchain unless paths.include?(swift_toolchain)
+          build_config.build_settings['LIBRARY_SEARCH_PATHS'] = paths
+          # Force link Swift compatibility libs so our Swift pod resolves at link time.
+          flags = build_config.build_settings['OTHER_LDFLAGS'] || ['$(inherited)']
+          flags = [flags] if flags.is_a?(String)
+          %w[swiftCompatibility56 swiftCompatibilityConcurrency swiftCompatibilityPacks].each do |lib|
+            flags << "-l#{lib}" unless flags.any? { |f| f.to_s.include?(lib) }
+          end
+          build_config.build_settings['OTHER_LDFLAGS'] = flags
+        end
+        break
+      end
+      app_project.save
+    end
   end
 end

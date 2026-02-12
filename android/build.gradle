@@ -1,6 +1,7 @@
 buildscript {
-  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
+  // Buildscript is evaluated before everything else so we can't use getExtOrDefault.
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['PdfPageImage_kotlinVersion']
+  def agp_version = rootProject.ext.has('androidGradlePluginVersion') ? rootProject.ext.get('androidGradlePluginVersion') : project.properties['PdfPageImage_androidGradlePluginVersion']
 
   repositories {
       google()
@@ -8,22 +9,16 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.5.4'
+    // Expo SDK 54 / RN >= 0.74 use Gradle 8+; keep AGP modern for compatibility.
+    classpath "com.android.tools.build:gradle:$agp_version"
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
 
-def isNewArchitectureEnabled() {
-  return rootProject.hasProperty("newArchEnabled") &&  rootProject.getProperty("newArchEnabled") == "true"
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
-if (isNewArchitectureEnabled()) {
-  apply plugin: 'com.facebook.react'
-}
+// Bridge-only module (no TurboModule spec), so avoid React codegen here.
 
 def getExtOrDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['PdfPageImage_' + name]
@@ -34,12 +29,13 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
+  // Required by AGP 8+; keep in sync with AndroidManifest package.
+  namespace "com.reactnativepdfpageimage"
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
 
   defaultConfig {
     minSdkVersion getExtOrIntegerDefault('minSdkVersion')
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
-    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
   }
   buildTypes {
     release {
@@ -47,7 +43,7 @@ android {
     }
   }
 
-  lintOptions {
+  lint {
     disable 'GradleCompatible'
   }
 
@@ -56,12 +52,16 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
+  // Match host app JVM (Expo 54 / RN 0.74+ use 17). Override with PdfPageImage_kotlinJvmTarget if needed.
+  kotlinOptions {
+    jvmTarget = getExtOrDefault('kotlinJvmTarget') ?: '17'
+  }
 }
 
 repositories {
   mavenCentral()
   google()
-  jcenter()  // Add this line to include JCenter repository
+  // jcenter is deprecated; keep to google()/mavenCentral() for Expo 54 builds.
 
   def found = false
   def defaultDir = null
@@ -138,10 +138,3 @@ dependencies {
 // From node_modules
 }
 
-if (isNewArchitectureEnabled()) {
-  react {
-    jsRootDir = file("../src/")
-    libraryName = "PdfPageImage"
-    codegenJavaPackageName = "com.reactnativepdfpageimage"
-  }
-}

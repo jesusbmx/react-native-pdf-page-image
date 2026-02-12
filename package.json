@@ -32,8 +32,10 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "release": "release-it",
-    "example": "yarn --cwd example",
-    "bootstrap": "yarn example && yarn install && yarn example pods"
+    "example": "npm run start --prefix example",
+    "example:install": "npm install --prefix example",
+    "example:pods": "cd example/ios && pod install",
+    "bootstrap": "npm install && npm run example:install && npm run example:pods"
   },
   "keywords": [
     "react-native",

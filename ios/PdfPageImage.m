@@ -1,3 +1,4 @@
+// Use React's public modular header path for RN >= 0.73.
 #import <React/RCTBridgeModule.h>
 
 @interface RCT_EXTERN_MODULE(PdfPageImage, NSObject)

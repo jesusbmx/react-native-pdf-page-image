@@ -7,7 +7,39 @@ This module enables React Native applications to generate images from PDF docume
 npm install react-native-pdf-page-image
 ```
 #### iOS
-`$ cd ios & pod install`
+`$ cd ios && pod install`
+
+## Testing the example app
+
+Run these from the repo root (the folder that contains `package.json` and the `example` directory). One command per line.
+
+```bash
+npm install
+npm run example:install
+npm run example:pods
+cd example && npx react-native run-ios
+```
+
+For Android, from repo root:
+
+```bash
+cd example && npx react-native run-android
+```
+
+Or from inside `example` after install: `npm run pods` (installs iOS pods), then `npm run ios` or `npm run android`.
+
+**iOS: "Error installing boost" or "Unrecognized archive format"**  
+The example Podfile forces the boost pod to use the official Boost mirror. If `pod install` still fails, clear the boost cache and reinstall:
+
+```bash
+cd example/ios
+pod cache clean boost
+rm -rf Pods Podfile.lock build
+pod install
+cd ../..
+```
+
+Then run the app from the repo root: `cd example && npx react-native run-ios`.
 
 ## Usage
 
